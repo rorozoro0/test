@@ -1,0 +1,78 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://hv-camera-web-sg.s3-ap-southeast-1.amazonaws.com/hyperverge-web-sdk@3.3.5/src/sdk.min.js"></script>
+  </head>
+  <body>
+    <!-- <button type="button" onclick="runLiveness();">runLiveness</button> -->
+    <input type="file" capture="camera" accept="image/*" id="cameraInput" name="cameraInput">
+    <div id = "abcdef"></div>
+    <script>
+      // function loaded(){
+      //     window.parent.postMessage({loaded: true}, "*");
+      //   }
+      // window.onload = function(){
+        // client calls the auth api to get the token from their backend server
+        // window.addEventListener('message', function(data){
+        //   console.log("Selfie token: "+data);
+        //   HyperSnapSDK.init(data, HyperSnapParams.Region.India);
+        //   HyperSnapSDK.startUserSession();
+        //   runLiveness()
+        // })
+        var jwt = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImM1ODIxNyIsImhhc2giOiIzZmE4NzhjZDUzYzBlZGNkMGEyNjFmMzM4MWJmZDUyNzYyMTI0MmI5OGQ4YmY4OWQ4NTZiNWU2NzE2YWYyZTg4IiwiaWF0IjoxNjY1NDgwOTgxLCJleHAiOjE2NjU1NjczODEsImp0aSI6Ijg5ZmE0NDUxLTliNzEtNGZlNy1hNGQ0LTU2YzQ4NzczNmM4ZSJ9.DAl6rhflfcXOJTOxs9UCAy8Yn56Koxj15BLYg9wQxgYvkx99CDzcPbeMgaZdXWE15UBDOCgzrwXgdeB89MUjAIGAT0X69dBUyCT1xLZIFpZGfIhwuIwx3oYjq-JTPYslt7_m7lRrjFP8pytIpAuq9WgwogebRZgmNJMm-tgVobc"
+        console.log("Selfie token: "+jwt);
+        HyperSnapSDK.init(jwt, HyperSnapParams.Region.India);
+        HyperSnapSDK.startUserSession();
+        // var faceImage = '';
+        // var docImage = '';
+        function runLiveness() {
+          hvFaceConfig = new HVFaceConfig();
+          hvFaceConfig.setShouldShowInstructionPage(true);
+          hvFaceConfig.setLivenessAPIParameters({
+            rejectFaceMask: 'yes',
+            allowEyesClosed: 'no',
+            allowMultipleFaces: 'no',
+          });
+          console.log(hvFaceConfig);
+          HVFaceModule.start(hvFaceConfig, callback);
+        }
+        callback = (HVError, HVResponse) => {
+          if (HVError) {
+            console.log(HVError);
+            try {
+              window.parent.postMessage(HVError, "*");
+              console.log("HVError postMessage");
+            } catch (error) {
+              console.log("HVError :", error);
+            }
+          } else {
+            console.log(HVResponse);
+            console.log(HVResponse.imgBase64);
+            try {
+              window.parent.postMessage(HVResponse, "*");
+              console.log("HVResponse postMessage");
+            } catch (error) {
+              console.log("HVResponseError :", error);
+            }
+          }
+        }
+        function camera() {
+        var video = document.getElementById("video");
+        // Get access to the camera!
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          navigator.mediaDevices
+            .getUserMedia({ video: true })
+            .then(function (stream) {
+              //video.src = window.URL.createObjectURL(stream);
+              video.srcObject = stream;
+              video.play();
+            });
+        }
+      }
+        window.onload = function(){
+          runLiveness();
+        }
+      // }
+    </script>
+  </body>
+</html>
